@@ -11,7 +11,7 @@ import {
 import { List, Title, Switch, TextInput, Snackbar, Divider } from 'react-native-paper';
 import Animated, { FadeInUp, AnimateProps } from 'react-native-reanimated';
 import { getUserAllergens, updateUserAllergens, AllergenProfile } from '../../config/firebase';
-import { Swipeable } from 'react-native-gesture-handler';
+import Swipeable from 'react-native-gesture-handler/Swipeable';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 

@@ -3,7 +3,8 @@
 import React from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
 import { Text, Card, Button, Chip, Divider, IconButton } from 'react-native-paper';
-import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
+import { useRoute, RouteProp } from '@react-navigation/core';
 
 type Params = {
   productInfo: any;

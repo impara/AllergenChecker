@@ -1,6 +1,6 @@
 // src/types/navigation.ts
 import { StackNavigationProp } from '@react-navigation/stack';
-import { RouteProp } from '@react-navigation/native';
+import { RouteProp } from '@react-navigation/core';
 
 export type RootStackParamList = {
   Home: undefined;
