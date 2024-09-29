@@ -6,7 +6,10 @@
       "src"
     ],
     "allowSyntheticDefaultImports": true,
-    "types": ["node", "jest", "expo", "react-native-dotenv"],
+    "types": [
+      "node",
+      "jest"
+    ],
     "target": "esnext",
     "module": "commonjs",
     "lib": [
