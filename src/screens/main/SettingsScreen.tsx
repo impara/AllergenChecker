@@ -31,7 +31,6 @@ const SettingsScreen: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      <Title style={styles.title}>Settings</Title>
 
       <AnimatedView entering={FadeInLeft.duration(500).springify()}>
         <List.Item

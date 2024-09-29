@@ -8,12 +8,13 @@ import {
   TouchableOpacity,
   Text,
 } from 'react-native';
-import { List, Title, Switch, TextInput, Snackbar, Divider } from 'react-native-paper';
+import { List, Title, Switch, Snackbar, Divider } from 'react-native-paper';
 import Animated, { FadeInUp, AnimateProps } from 'react-native-reanimated';
 import { getUserAllergens, updateUserAllergens, AllergenProfile } from '../../config/firebase';
 import Swipeable from 'react-native-gesture-handler/Swipeable';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-
+import Input from '../../components/common/Input';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const defaultAllergens = [
   'Peanuts',
@@ -72,6 +73,9 @@ const AllergenProfileScreen: React.FC = () => {
     };
     setCheckedAllergens(updatedAllergens as AllergenProfile);
     await saveAllergenProfile(updatedAllergens as AllergenProfile);
+    
+    // Add toast message for toggling allergen
+    showSnackbar(`${allergen} ${updatedAllergens[allergen].selected ? 'enabled' : 'disabled'}`);
   };
 
   const saveAllergenProfile = async (allergens: AllergenProfile) => {
@@ -183,22 +187,19 @@ const AllergenProfileScreen: React.FC = () => {
   }
 
   return (
-    <>
+    <SafeAreaView style={styles.safeArea}>
       <ScrollView style={styles.container}>
-        <Title style={styles.title}></Title>
-
         <View style={styles.customAllergenContainer}>
           <View style={styles.inputRow}>
-            <TextInput
-              style={styles.customAllergenInput}
+            <Input
               value={newAllergen}
               onChangeText={setNewAllergen}
               placeholder="Add custom allergen"
-              onSubmitEditing={addCustomAllergen}
-              returnKeyType="done"
+              placeholderTextColor="#A0A0A0"
+              style={styles.input}
             />
             <TouchableOpacity onPress={addCustomAllergen} style={styles.addButton} activeOpacity={0.7}>
-            <MaterialCommunityIcons name="plus" size={24} color="#fff" />
+              <MaterialCommunityIcons name="plus" size={24} color="#fff" />
             </TouchableOpacity>
           </View>
         </View>
@@ -212,17 +213,19 @@ const AllergenProfileScreen: React.FC = () => {
               renderRightActions={(progress, dragX) => renderRightActions(progress, dragX, allergen)}
               onSwipeableRightOpen={() => deleteAllergen(allergen)}
             >
-              <List.Item
-                title={allergen}
-                titleStyle={styles.allergenText}
-                right={() => (
-                  <Switch
-                    value={checkedAllergens[allergen]?.selected || false}
-                    onValueChange={() => toggleAllergen(allergen)}
-                    color="#6200ee"
-                  />
-                )}
-              />
+              <View style={styles.allergenItem}>
+                <List.Item
+                  title={allergen}
+                  titleStyle={styles.allergenText}
+                  right={() => (
+                    <Switch
+                      value={checkedAllergens[allergen]?.selected || false}
+                      onValueChange={() => toggleAllergen(allergen)}
+                      color="#6750A4"
+                    />
+                  )}
+                />
+              </View>
               <Divider style={styles.divider} />
             </Swipeable>
           </AnimatedView>
@@ -248,16 +251,21 @@ const AllergenProfileScreen: React.FC = () => {
         duration={5000}
         style={styles.snackbar}
       >
-        {snackbarMessage}
+        <Text style={styles.snackbarText}>{snackbarMessage}</Text>
       </Snackbar>
-    </>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#f0f4f8',
+  },
   container: {
     flex: 1,
-    backgroundColor: '#f9f9f9', // Slightly lighter background
+    paddingHorizontal: 16,
+    paddingTop: 8, // Reduced top padding
   },
   loadingContainer: {
     flex: 1,
@@ -265,60 +273,86 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   title: {
-    margin: 20,
-    fontSize: 24,
+    fontSize: 24, // Slightly reduced font size
     fontWeight: 'bold',
-    color: '#6200ee',
+    color: '#1a237e',
+    marginBottom: 16, // Reduced bottom margin
+    textAlign: 'center',
   },
   customAllergenContainer: {
-    marginHorizontal: 16,
     marginBottom: 16,
   },
   inputRow: {
     flexDirection: 'row',
     alignItems: 'center',
   },
-  customAllergenInput: {
+  input: {
     flex: 1,
-    backgroundColor: '#f0f0f0', // Light background for input field
-    borderRadius: 8,
-    paddingHorizontal: 10,
-    height: 50, // Adjust height for better appearance
-    marginRight: 8,
+    height: 56,
+    backgroundColor: '#ffffff',
+    borderRadius: 12,
+    paddingHorizontal: 20,
+    fontSize: 18,
+    color: '#333',
+    fontWeight: '500',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+    borderWidth: 0, // Explicitly set border width to 0
   },
   addButton: {
-    backgroundColor: '#6200ee', // Use your primary color
-    padding: 12,
-    borderRadius: 8,
+    backgroundColor: '#6750A4',
+    width: 56,
+    height: 56,
+    borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
+    marginLeft: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  allergenItem: {
+    backgroundColor: '#ffffff',
+    borderRadius: 12,
+    marginBottom: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
   },
   rightAction: {
-    backgroundColor: '#dd2c00',
+    backgroundColor: '#ff3d00',
     justifyContent: 'center',
-    alignItems: 'center',
+    alignItems: 'flex-end',
     flex: 1,
+    borderTopRightRadius: 12,
+    borderBottomRightRadius: 12,
   },
   actionText: {
     color: 'white',
     fontWeight: '600',
-    paddingHorizontal: 20,
+    padding: 20,
   },
   allergenText: {
     fontSize: 18,
-    color: '#333', // Darker color for better contrast
-    fontWeight: '500', // Slightly bold for better readability
+    color: '#333',
+    fontWeight: '500',
   },
   divider: {
-    backgroundColor: '#e0e0e0', // Subtle line color for separators
-    height: 1,
-    marginHorizontal: 16,
+    height: 0,
   },
   snackbar: {
-    backgroundColor: '#333', // Darker background for snackbar
-    color: '#fff',
+    backgroundColor: '#323232',
+  },
+  snackbarText: {
+    color: '#ffffff',
   },
 });
 
 export default AllergenProfileScreen;
-

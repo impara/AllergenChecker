@@ -1,15 +1,16 @@
-export const typography = {
-  fontFamily: 'System',
-  fontSize: {
-    small: 12,
-    medium: 16,
-    large: 20,
-    extraLarge: 24,
-  },
-  fontWeight: {
-    normal: '400',
-    bold: '700',
-  },
-};
+import { TextStyle } from 'react-native';
 
-export type Typography = typeof typography;
+export const typography: { [key: string]: TextStyle } = {
+  h1: {
+    fontSize: 32,
+    fontWeight: 'bold',
+  },
+  h2: {
+    fontSize: 24,
+    fontWeight: 'bold',
+  },
+  body: {
+    fontSize: 16,
+  },
+  // Add any other typography styles you need
+};
