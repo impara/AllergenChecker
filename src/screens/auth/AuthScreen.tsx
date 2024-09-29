@@ -3,7 +3,6 @@ import { View, StyleSheet, Image } from 'react-native';
 import { Button, TextInput, Title, Text } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { RootStackParamList } from '../../types/navigation';
 import { useTheme } from 'styled-components/native';
 import { 
   signInWithGoogleCredential,
@@ -12,11 +11,18 @@ import {
 } from '../../config/firebase';
 import * as Google from 'expo-auth-session/providers/google';
 import * as WebBrowser from 'expo-web-browser';
-import appLogo from '../../../assets/icon.png';
+import appLogo from '../../../assets/icons/icon.png';
 import Toast from '../../components/Toast';
 import { makeRedirectUri } from 'expo-auth-session';
 
 WebBrowser.maybeCompleteAuthSession();
+
+// Define RootStackParamList here if it's not imported
+type RootStackParamList = {
+  Auth: undefined;
+  Home: undefined;
+  // ... other screens ...
+};
 
 type AuthScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Auth'>;
 

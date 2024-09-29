@@ -18,7 +18,18 @@ import ProductInfoScreen from './src/screens/main/ProductInfoScreen';
 import HomeScreen from './src/screens/main/HomeScreen';
 import ScanScreen from './src/screens/main/ScanScreen';
 
-const Stack = createStackNavigator();
+// Add type annotation for Stack
+const Stack = createStackNavigator<RootStackParamList>();
+
+// Add this type definition above the App function
+type RootStackParamList = {
+  Auth: undefined;
+  Home: undefined;
+  Scan: undefined;
+  ProductInfo: undefined;
+  Settings: undefined;
+  AllergenProfile: undefined;
+};
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
