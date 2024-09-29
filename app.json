@@ -1,0 +1,59 @@
+{
+  "expo": {
+    "name": "AllergenChecker",
+    "slug": "allergen-checker",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "updates": {
+      "fallbackToCacheTimeout": 0,
+      "url": "https://u.expo.dev/fa6681b9-6ef6-4cc1-b585-abc1ba38f404",
+      "releaseChannel": "default"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.foodallergyscanner"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#FFFFFF"
+      },
+      "package": "com.foodallergyscanner",
+      "googleServicesFile": "./google-services.json",
+      "permissions": [
+        "android.permission.CAMERA"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      [
+        "expo-build-properties",
+        {
+          "android": {},
+          "ios": {}
+        }
+      ],
+      "expo-secure-store"
+    ],
+    "scheme": "allergenchecker",
+    "extra": {
+      "eas": {
+        "projectId": "fa6681b9-6ef6-4cc1-b585-abc1ba38f404"
+      }
+    },
+    "owner": "impara1",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    }
+  }
+}
