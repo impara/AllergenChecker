@@ -19,7 +19,13 @@ const ProductInfoScreen: React.FC = () => {
 
   console.log('Displaying Product Info:', product);
 
-  const productName = product.product_name || product.name || 'Unnamed Product';
+  const productName = 
+    Object.keys(product).find(key => key.startsWith('product_name_')) ? 
+    product[Object.keys(product).find(key => key.startsWith('product_name_'))!] :
+    product.product_name || 
+    product.name || 
+    'Unnamed Product';
+
   const productBrand = product.brands || product.brand || 'Unknown Brand';
 
   const countries =
@@ -28,6 +34,8 @@ const ProductInfoScreen: React.FC = () => {
     product.countries ||
     [];
 
+  const nutrientsAvailable = product.nutrients_available === true;
+  
   return (
     <ScrollView style={styles.container}>
       <Card style={styles.card}>
@@ -92,28 +100,29 @@ const ProductInfoScreen: React.FC = () => {
             </View>
           </View>
 
-          <Divider style={styles.divider} />
-
-          <Text style={styles.sectionTitle}>Nutritional Information:</Text>
-          {product.nutriments ? (
-            <View>
-              <Text>
-                Calories: {product.nutriments['energy-kcal'] || 'N/A'}{' '}
-                {product.nutriments['energy-kcal_unit'] || ''}
-              </Text>
-              <Text>Protein: {product.nutriments.proteins || 'N/A'}g</Text>
-              <Text>Carbs: {product.nutriments.carbohydrates || 'N/A'}g</Text>
-              <Text>Fat: {product.nutriments.fat || 'N/A'}g</Text>
-            </View>
-          ) : (
-            <Text>Nutritional information not available.</Text>
+          {/* Conditionally Render Nutritional Information */}
+          {nutrientsAvailable && (
+            <>
+              <Divider style={styles.divider} />
+              <Text style={styles.sectionTitle}>Nutritional Information:</Text>
+              {product.nutriments ? (
+                <View>
+                  <Text>
+                    Calories: {product.nutriments['energy-kcal'] || 'N/A'}{' '}
+                    {product.nutriments['energy-kcal_unit'] || ''}
+                  </Text>
+                  <Text>Protein: {product.nutriments.proteins || 'N/A'}g</Text>
+                  <Text>Carbs: {product.nutriments.carbohydrates || 'N/A'}g</Text>
+                  <Text>Fat: {product.nutriments.fat || 'N/A'}g</Text>
+                </View>
+              ) : (
+                <Text>Nutritional information not available.</Text>
+              )}
+            </>
           )}
         </Card.Content>
       </Card>
 
-      <Button mode="outlined" onPress={() => navigation.goBack()} style={styles.button}>
-        Back to Scan
-      </Button>
     </ScrollView>
   );
 };

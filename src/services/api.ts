@@ -82,20 +82,3 @@ export const getAlternateProductInfo = async (barcode: string): Promise<Alternat
   }
 };
 
-export const parseIngredients = (ingredientsText: string): string[] => {
-  console.log('Parsing ingredients text.');
-  if (!ingredientsText) return [];
-
-  const normalizedText = ingredientsText
-    .toLowerCase()
-    .replace(/[\(\)\[\]]/g, '')
-    .replace(/[^a-zæøå,;.\s]/g, '');
-
-  const ingredients = normalizedText
-    .split(/[,;.]/)
-    .map((ingredient) => ingredient.trim())
-    .filter((ingredient) => ingredient.length > 0);
-
-  console.log('Parsed Ingredients:', ingredients);
-  return ingredients;
-};

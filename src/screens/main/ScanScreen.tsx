@@ -15,11 +15,10 @@ import { useNavigation } from '@react-navigation/native';
 import {
   getOpenFoodFactsProductInfo,
   getAlternateProductInfo,
-  parseIngredients,
 } from '../../services/api';
 import { getUserAllergens, AllergenProfile } from '../../config/firebase';
 import { NavigationProp } from '../../types/navigation';
-import { unifiedDetectAllergens } from '../../utils/allergenDetection';
+import { unifiedDetectAllergens, parseIngredients } from '../../utils/allergenDetection';
 import { ProductInfo, AlternateProductInfo } from '../../types/ProductInfo';
 
 const ScanScreen: React.FC = () => {
@@ -194,51 +193,45 @@ const ScanScreen: React.FC = () => {
     setLoading(false);
   };
 
-  const processProductInfo = async (productInfo: ProductInfo) => {
-    console.log('Processing product info from OpenFoodFacts.');
-    const userAllergensData: AllergenProfile = userAllergens;
+const processProductInfo = async (productInfo: ProductInfo) => {
+  console.log('Processing product info from OpenFoodFacts.');
+  const userAllergensData: AllergenProfile = userAllergens;
 
-    const allergensTags: string[] = productInfo.product.allergens_tags || [];
-    const allergensFromIngredients: string[] = productInfo.product.allergens_from_ingredients
-      ? productInfo.product.allergens_from_ingredients
-          .split(',')
-          .map((tag: string) => tag.trim().toLowerCase())
-      : [];
-    const allergensHierarchy: string[] = productInfo.product.allergens_hierarchy || [];
+  // Consolidate all allergen-related fields
+  const apiAllergenTags: string[] = [
+    ...(productInfo.product.allergens_tags || []),
+    ...(productInfo.product.allergens_from_ingredients
+      ? productInfo.product.allergens_from_ingredients.split(',').map((tag) => tag.trim())
+      : []),
+    ...(productInfo.product.allergens_hierarchy || []),
+    ...(productInfo.product.additives_tags || []),
+    ...(productInfo.product.ingredients_hierarchy || []),
+  ];
 
-    let combinedAllergens = [
-      ...new Set([...allergensTags, ...allergensFromIngredients, ...allergensHierarchy]),
-    ];
-    combinedAllergens = combinedAllergens
-      .map((tag: string) => tag.trim().toLowerCase())
-      .map((tag: string) =>
-        tag.startsWith('en:') ? tag.replace('en:', '').toLowerCase() : tag
-      )
-      .filter((tag: string) => tag.length > 0);
-    console.log('Combined Allergens:', combinedAllergens);
+  console.log('API Allergen Tags:', apiAllergenTags);
 
-    const ingredientsText =
-      productInfo.product.ingredients_text_en || productInfo.product.ingredients_text;
-    console.log('Ingredients Text:', ingredientsText);
+  const ingredientsText =
+    productInfo.product.ingredients_text_en || productInfo.product.ingredients_text;
+  console.log('Ingredients Text:', ingredientsText);
 
-    let ingredientsList: string[] = [];
-    if (ingredientsText) {
-      ingredientsList = parseIngredients(ingredientsText);
-      console.log('Parsed Ingredients List:', ingredientsList);
-    }
+  let ingredientsList: string[] = [];
+  if (ingredientsText) {
+    ingredientsList = parseIngredients(ingredientsText);
+    console.log('Parsed Ingredients List:', ingredientsList);
+  }
 
-    const finalDetectedAllergens = unifiedDetectAllergens(
-      ingredientsList,
-      userAllergensData,
-      combinedAllergens
-    );
+  const finalDetectedAllergens = unifiedDetectAllergens(
+    ingredientsList,
+    userAllergensData,
+    apiAllergenTags
+  );
 
-    navigation.navigate('ProductInfo', {
-      productInfo: productInfo.product,
-      detectedAllergens: finalDetectedAllergens,
-      ingredientsList,
-    });
-  };
+  navigation.navigate('ProductInfo', {
+    productInfo: productInfo.product,
+    detectedAllergens: finalDetectedAllergens,
+    ingredientsList,
+  });
+};
 
   const processAlternateProductInfo = async (alternateProductInfo: AlternateProductInfo) => {
     console.log('Processing product info from FoodRepo.');

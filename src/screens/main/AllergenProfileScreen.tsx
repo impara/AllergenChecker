@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import {
   ScrollView,
   View,
@@ -15,6 +15,9 @@ import Swipeable from 'react-native-gesture-handler/Swipeable';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import Input from '../../components/common/Input';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import nlp from 'compromise';
+import emoji from 'emoji-dictionary';
+import stringSimilarity from 'string-similarity';
 
 const defaultAllergens = [
   'Peanuts',
@@ -41,6 +44,9 @@ const AllergenProfileScreen: React.FC = () => {
   const undoActionRef = useRef<(() => void) | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [newAllergen, setNewAllergen] = useState('');
+
+  // Emoji cache to store computed emojis
+  const emojiCache = useRef<{ [key: string]: string }>({});
 
   useEffect(() => {
     loadAllergenProfile();
@@ -73,7 +79,7 @@ const AllergenProfileScreen: React.FC = () => {
     };
     setCheckedAllergens(updatedAllergens as AllergenProfile);
     await saveAllergenProfile(updatedAllergens as AllergenProfile);
-    
+
     // Add toast message for toggling allergen
     showSnackbar(`${allergen} ${updatedAllergens[allergen].selected ? 'enabled' : 'disabled'}`);
   };
@@ -89,7 +95,7 @@ const AllergenProfileScreen: React.FC = () => {
       console.error('Error saving allergen profile:', error);
       Alert.alert('Error', 'Failed to save allergen profile.');
     }
-  };  
+  };
 
   const addCustomAllergen = () => {
     const trimmedAllergen = newAllergen.trim();
@@ -178,6 +184,51 @@ const AllergenProfileScreen: React.FC = () => {
     undoActionRef.current = null;
   };
 
+  // Optimized getEmojiForAllergen function with caching
+  const getEmojiForAllergen = (allergenName: string) => {
+    if (!allergenName || typeof allergenName !== 'string') {
+      return '❓';
+    }
+
+    if (emojiCache.current[allergenName]) {
+      return emojiCache.current[allergenName];
+    }
+
+    const searchTerm = allergenName.toLowerCase().trim();
+    const doc = nlp(searchTerm);
+    const terms = doc.terms().out('array');
+    const nouns = doc.nouns().out('array');
+    const roots = doc.nouns().toSingular().out('array');
+
+    // Collect possible keywords and remove duplicates
+    const possibleKeywords = [...new Set([...terms, ...nouns, ...roots])];
+
+    const emojiKeywords = emoji.names;
+
+    for (let keyword of possibleKeywords) {
+      const matches = stringSimilarity.findBestMatch(keyword, emojiKeywords);
+      if (matches.bestMatch.rating > 0.5) {
+        const emojiChar = emoji.getUnicode(matches.bestMatch.target);
+        if (emojiChar) {
+          emojiCache.current[allergenName] = emojiChar;
+          return emojiChar;
+        }
+      }
+    }
+
+    emojiCache.current[allergenName] = '❓';
+    return '❓';
+  };
+
+  // Precompute emojis using useMemo
+  const emojiMap = useMemo(() => {
+    const map: { [key: string]: string } = {};
+    allergenList.forEach((allergen) => {
+      map[allergen] = getEmojiForAllergen(allergen);
+    });
+    return map;
+  }, [allergenList]);
+
   if (isLoading) {
     return (
       <View style={styles.loadingContainer}>
@@ -215,7 +266,7 @@ const AllergenProfileScreen: React.FC = () => {
             >
               <View style={styles.allergenItem}>
                 <List.Item
-                  title={allergen}
+                  title={`${emojiMap[allergen] || '❓'}  ${allergen}`}
                   titleStyle={styles.allergenText}
                   right={() => (
                     <Switch
@@ -265,19 +316,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: 16,
-    paddingTop: 8, // Reduced top padding
+    paddingTop: 8,
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  title: {
-    fontSize: 24, // Slightly reduced font size
-    fontWeight: 'bold',
-    color: '#1a237e',
-    marginBottom: 16, // Reduced bottom margin
-    textAlign: 'center',
   },
   customAllergenContainer: {
     marginBottom: 16,
@@ -300,7 +344,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 2,
     elevation: 2,
-    borderWidth: 0, // Explicitly set border width to 0
+    borderWidth: 0,
   },
   addButton: {
     backgroundColor: '#6750A4',
